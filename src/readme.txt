@@ -11,7 +11,6 @@ venv\Scripts\activate
 4/ Installer les librairies :
 pip install -r requirements.txt
 
-
 # Lancer le projet Flask en local :
 cd src
 flask run

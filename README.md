@@ -25,7 +25,8 @@ Ce projet utilise une architecture conteneurisée (micro-services) pour garantir
 SportTracker/
 ├── src/
 │   ├── templates/       # Code source de l'application
-|   |   └── Fichiers HTML CSS
+|   |   ├── static/css/ Fichiers CSS
+|   |   └── Fichiers HTML
 │   ├── Dockerfile       # Build l'image du serveur web
 │   └── requirements.txt # Dépendances
 ├── data/
