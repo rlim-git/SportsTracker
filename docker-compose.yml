@@ -3,8 +3,8 @@ version: '3.8'
 services:
   # --- 1. Application (Backend/API) ---
   app:
-    build: ./src       # Construit l'image à partir de votre dossier src et du Dockerfile
-    container_name: sporttracker_app
+    build: ./src       # Construit l'image à partir du dossier src et du Dockerfile
+    container_name: sportstracker_app
     restart: always
     depends_on:
       - db_postgres
@@ -19,7 +19,7 @@ services:
   # --- 2. Serveur Web (Nginx - Reverse Proxy) ---
   nginx:
     image: nginx:alpine
-    container_name: sporttracker_nginx
+    container_name: sportstracker_nginx
     restart: always
     ports:
       - "80:80"  # C'est le seul port ouvert vers votre machine
@@ -32,7 +32,7 @@ services:
   # --- 3. Base de données Relationnelle (PostgreSQL) ---
   db_postgres:
     image: postgres:15-alpine
-    container_name: sporttracker_postgres
+    container_name: sportstracker_postgres
     restart: always
     environment:
       POSTGRES_USER: user
@@ -45,7 +45,7 @@ services:
   # --- 4. Base de données Non-Relationnelle (MongoDB) ---
   db_mongo:
     image: mongo:6.0
-    container_name: sporttracker_mongo
+    container_name: sportstracker_mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
