@@ -1,5 +1,5 @@
 # 🏋️ SportTracker : Votre Carnet d'Entraînement Numérique
-Groupe:
+Groupe :
 - Remy LIM
 - Jugurtha MENASRIA
 
@@ -15,7 +15,7 @@ Ce projet utilise une architecture conteneurisée (micro-services) pour garantir
 
 | Composant | Rôle | Technologie |
 | :--- | :--- | :--- |
-| **Serveur Web** | Logique métier de l'application et API. | À Définir (Node.js/Express, Python/Django, PHP/Symfony) |
+| **Serveur Web** | Logique métier de l'application et API. | Flask (Micro-Framework Python) |
 | **DB Relationnelle** | Gestion des données structurées et critiques (Utilisateurs, **Performances**, Records). | **PostgreSQL** |
 | **DB Non-Relationnelle** | Gestion des données flexibles (Logs d'activité bruts, Notifications, Statistiques agrégées en cache). | **MongoDB** |
 | **Orchestration** | Définition et gestion de l'environnement multi-conteneurs. | **Docker Compose** |
