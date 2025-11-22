@@ -21,20 +21,24 @@ Ce projet utilise une architecture conteneurisée (micro-services) pour garantir
 | **Orchestration** | Définition et gestion de l'environnement multi-conteneurs. | **Docker Compose** |
 
 ### 📂 Structure du Répertoire (Phase Initiale)
+```text
 SportTracker/
 ├── src/
-│   │  └── ... # Code source de l'application (e.g., Python, Node.js, PHP)
-│   ├── Dockerfile # Build l'image du serveur web
-│   └── requirements.txt/package.json/composer.json # Dépendances
+│   ├── templates/       # Code source de l'application
+|   |   └── Fichiers HTML CSS
+│   ├── Dockerfile       # Build l'image du serveur web
+│   └── requirements.txt # Dépendances
 ├── data/
-│   ├── postgres/ # Volume persistant pour PostgreSQL
-│   └── mongo/    # Volume persistant pour MongoDB
+│   ├── postgres/        # Volume persistant pour PostgreSQL
+│   └── mongo/           # Volume persistant pour MongoDB
 ├── db_rel/
-│   └── init.sql # Script d'initialisation de la DB relationnelle
+│   └── init.sql         # Script d'initialisation de la DB relationnelle
 ├── db_nonrel/
-│   └── config.js # Fichier de configuration ou d'initialisation MongoDB
-├── README
-└── docker-compose.yml
+│   └── config.js        # Fichier de configuration MongoDB
+├── nginx.conf           # Configuration du Reverse Proxy
+├── README.md
+└── docker-compose.yml   # Orchestration des services
+```
 
 ## Définition de l'environnement
 
