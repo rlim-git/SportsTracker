@@ -9,6 +9,53 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    
+    if request.method == 'POST':
+        user_input = request.form.get('username')
+        pass_input = request.form.get('password')
+        
+        # --- LOGIQUE DE VÉRIFICATION ---
+        # Ici, on accepte tout le monde si le mot de passe est 'admin'
+        # C'est suffisant pour la démo, mais on pourrait interroger Postgres ici.
+        if pass_input == 'admin':
+            # On pourrait stocker le user en session ici
+            return redirect('/dashboard')
+        else:
+            error = "Identifiants invalides. Essayez mdp: 'admin'"
+
+    return render_template('login.html', error=error)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    error = None
+    
+    if request.method == 'POST':
+        # 1. Récupération des champs
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm = request.form.get('confirm_password')
+
+        # 2. Vérification simple
+        if password != confirm:
+            error = "Les mots de passe ne correspondent pas !"
+        elif len(password) < 4:
+            error = "Le mot de passe est trop court."
+        else:
+            # --- C'EST ICI QU'ON FERA L'INSERT SQL PLUS TARD ---
+            # cursor.execute("INSERT INTO users ...")
+            
+            print(f"Nouvel utilisateur simulé : {username} / {email}")
+            
+            # Succès -> On redirige vers le login
+            # (Idéalement on passe un message de succès, mais restons simples)
+            return redirect('/login')
+
+    return render_template('register.html', error=error)
+
 # # Config
 # PG_HOST = os.environ.get('POSTGRES_HOST', 'postgres')
 # MONGO_HOST = os.environ.get('MONGO_HOST', 'mongo')
