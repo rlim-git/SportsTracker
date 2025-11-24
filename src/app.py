@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from datetime import datetime
 from psycopg2 import IntegrityError # Pour gérer les erreurs "Utilisateur existe déjà"
 from flask import Flask, render_template, request, redirect, session, url_for
 from pymongo import MongoClient
@@ -66,23 +67,38 @@ def register():
             conn = get_pg_connection()
             cur = conn.cursor()
             try:
-                # INSERTION SQL
-                # ATTENTION : En production, on hashe le mot de passe (bcrypt) !
-                # Pour le projet école, on stocke en clair comme demandé pour l'instant.
+                # 1. INSERTION SQL avec "RETURNING id"
+                # On demande à Postgres de nous rendre l'ID généré immédiatement
                 cur.execute(
-                    "INSERT INTO users (username, password) VALUES (%s, %s)",
+                    "INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id",
                     (username, password)
                 )
-                conn.commit() # Valider l'enregistrement
+                # On récupère l'ID
+                new_user_id = cur.fetchone()[0]
+                conn.commit()
+                
+                # 2. INSERTION MONGODB (Création du profil)
+                # On crée une collection 'users_profile' ou on met dans 'sessions' (au choix)
+                # Ici je crée un document profil simple
+                mongo_db['users_profile'].insert_one({
+                    "user_id": new_user_id,    # Le lien clé entre SQL et Mongo !
+                    "username": username,
+                    "created_at": datetime.now(),
+                    "poids": None,             # Champs futurs
+                    "taille": None
+                })
+
                 cur.close()
                 conn.close()
-                return redirect('/login') # Succès -> on va au login
+                return redirect('/login')
+            
             except IntegrityError:
-                conn.rollback() # Annuler la transaction en erreur
+                conn.rollback()
                 error = "Ce nom d'utilisateur existe déjà."
             except Exception as e:
-                conn.rollback()
-                error = f"Erreur base de données : {e}"
+                if conn: conn.rollback()
+                print(e) # Affiche l'erreur dans la console docker
+                error = f"Erreur technique : {e}"
             finally:
                 if conn: conn.close()
 
