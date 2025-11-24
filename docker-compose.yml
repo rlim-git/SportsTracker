@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # --- 1. Application (Backend/API) ---
   app:
@@ -7,12 +5,14 @@ services:
     container_name: sportstracker_app
     restart: always
     depends_on:
-      - db_postgres
-      - db_mongo
+      - postgres
+      - mongo
     environment:
-      # Connection Strings (Notez l'utilisation des noms de services comme host)
-      DATABASE_URL: postgres://user:password@db_postgres:5432/sportdb
-      MONGO_URI: mongodb://db_mongo:27017/sportlogs
+      - POSTGRES_HOST=postgres
+      - MONGO_HOST=mongo
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=sportdb
     # On n'expose pas de port vers l'extérieur ici, car Nginx va s'en charger.
     # L'app doit juste écouter sur le port 5000 (standard Flask) en interne.
 
@@ -30,26 +30,30 @@ services:
       - app
 
   # --- 3. Base de données Relationnelle (PostgreSQL) ---
-  db_postgres:
+  postgres:
     image: postgres:15-alpine
     container_name: sportstracker_postgres
     restart: always
     environment:
-      POSTGRES_USER: user
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
       POSTGRES_DB: sportdb
+    ports:
+    - "5432:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ./db_rel/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   # --- 4. Base de données Non-Relationnelle (MongoDB) ---
-  db_mongo:
+  mongo:
     image: mongo:6.0
     container_name: sportstracker_mongo
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
     volumes:
       - ./data/mongo:/data/db
       # Mongo utilise des scripts JS pour l'init

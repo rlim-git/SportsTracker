@@ -70,7 +70,7 @@ docker compose up --build -d
 docker ps
  ```
 
-*Votre application Web devrait être accessible à l'adresse suivante :* `http://localhost/` *(selon la configuration de port dans docker-compose.yml).*
+*Votre application Web devrait être accessible à l'adresse suivante :* `http://localhost/`
 
 ### Arrêt de l'environnement
 

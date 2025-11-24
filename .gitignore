@@ -10,3 +10,6 @@ __pycache__/
 # Ignore les fichiers système Mac/Windows
 .DS_Store
 Thumbs.db
+
+# Ignore les fichiers de volumes
+data/
