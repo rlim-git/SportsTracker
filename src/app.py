@@ -2,7 +2,7 @@ import os
 import psycopg2
 from datetime import datetime
 from psycopg2 import IntegrityError
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, flash
 from pymongo import MongoClient
 from urllib.parse import quote_plus
 
@@ -179,9 +179,15 @@ def dashboard():
             workouts_collection.insert_one({
                 "user_id": current_user_id, "username": current_username, "type": workout_type, "date": date_str, "details": doc_details
             })
+            
+            # --- SUCCES ---
+            flash("Session d'entrainement ajouté !", "success")
+
         except Exception as e:
             conn.rollback()
             print(f"Erreur: {e}")
+            # --- ERREUR ---
+            flash("Affiche problème", "error")
         finally:
             cur.close()
             conn.close()

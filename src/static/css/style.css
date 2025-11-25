@@ -83,13 +83,12 @@ footer {
 
 /* ZONE DE SCROLL HISTORIQUE --- */
 .history-scroll-container {
-    max-height: 550px; /* Hauteur max (ajustée pour correspondre à peu près au formulaire à gauche) */
-    overflow-y: auto;  /* Active la barre de défilement verticale si ça dépasse */
-    overflow-x: hidden; /* Cache la barre horizontale */
-    padding-right: 5px; /* Petit espace pour ne pas que le contenu colle à la barre */
+    max-height: 550px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
 }
 
-/* Personnalisation de la barre de défilement (Webkit: Chrome, Edge, Safari) */
 .history-scroll-container::-webkit-scrollbar {
     width: 8px;
 }
@@ -103,4 +102,40 @@ footer {
 }
 .history-scroll-container::-webkit-scrollbar-thumb:hover {
     background: #95a5a6; 
+}
+
+/* --- TOAST NOTIFICATIONS (POP-UP) --- */
+.toast-notification {
+    padding: 15px 25px;
+    margin-top: 10px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    animation: slideInRight 0.5s ease-out;
+    min-width: 250px;
+}
+
+/* Variantes de couleur */
+.toast-notification.success {
+    background-color: #2ecc71; /* Vert */
+    border-left: 5px solid #27ae60;
+}
+
+.toast-notification.error {
+    background-color: #ff4757; /* Rouge */
+    border-left: 5px solid #c0392b;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
