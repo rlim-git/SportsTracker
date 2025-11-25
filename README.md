@@ -65,7 +65,7 @@ Assurez-vous d'avoir installé sur votre machine :
 docker compose up --build -d
 ```
 
-3.  Vérifiez que les quatres conteneurs sont en cours d'exécution :
+3.  Vérifiez que les quatre conteneurs sont en cours d'exécution :
 
 ```bash
 docker ps -a
