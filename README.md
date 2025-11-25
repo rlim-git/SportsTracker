@@ -24,21 +24,21 @@ Ce projet utilise une architecture conteneurisée (micro-services) pour garantir
 ```text
 SportTracker/
 ├── src/
-│   ├── templates/       # Code source de l'application
-|   |   ├── static/css/ Fichiers CSS
+│   ├── templates/           # Code source de l'application
 |   |   └── Fichiers HTML
-│   ├── Dockerfile       # Build l'image du serveur web
-│   └── requirements.txt # Dépendances
+|   ├──  static/css/         # Fichiers CSS
+│   ├── Dockerfile           # Build l'image du serveur web
+│   └── requirements.txt     # Dépendances
 ├── data/
-│   ├── postgres/        # Volume persistant pour PostgreSQL
-│   └── mongo/           # Volume persistant pour MongoDB
+│   ├── postgres/            # Volume persistant pour PostgreSQL
+│   └── mongo/               # Volume persistant pour MongoDB
 ├── db_rel/
-│   └── init.sql         # Script d'initialisation de la DB relationnelle
+│   └── init.sql             # Script d'initialisation de la DB relationnelle
 ├── db_nonrel/
-│   └── config.js        # Fichier de configuration MongoDB
-├── nginx.conf           # Configuration du Reverse Proxy
+│   └── config.js            # Fichier de configuration MongoDB
+├── nginx.conf               # Configuration du Reverse Proxy
 ├── README.md
-└── docker-compose.yml   # Orchestration des services
+└── docker-compose.yml       # Orchestration des services
 ```
 
 ## Définition de l'environnement
@@ -70,7 +70,7 @@ docker compose up --build -d
 docker ps
  ```
 
-*Votre application Web devrait être accessible à l'adresse suivante :* `http://localhost/`
+*Votre application Web devrait être accessible à l'adresse suivante :* `http://localhost:80`
 
 ### Arrêt de l'environnement
 
