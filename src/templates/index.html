@@ -25,11 +25,11 @@
         </div>
     </header>
 
-    <div class="container pb-5">
+    <div class="container pb-3">
         <div class="row g-4">
-            
+            <!-- FORMULAIRE (Gauche) -->
             <div class="col-lg-4">
-                <div class="custom-card p-4 h-100">
+                <div class="custom-card p-4 h-80">
                     <h4 class="mb-4 text-primary"><i class="fas fa-plus-circle me-2"></i>Nouvelle Séance</h4>
                     <form method="POST" action="/dashboard">
                         <div class="mb-3">
@@ -82,6 +82,7 @@
                 </div>
             </div>
 
+            <!-- HISTORIQUE (Droite) -->
             <div class="col-lg-8">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="text-secondary mb-0">Historique</h4>
@@ -94,32 +95,54 @@
                         <p>Aucune séance enregistrée.</p>
                     </div>
                 {% else %}
-                    <div class="d-flex flex-col gap-3">
-                        {% for log in history %}
-                        <div class="custom-card p-3 mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-box me-3 {{ 'bg-cardio' if log.type == 'Cardio' else 'bg-muscu' }}">
-                                    {% if log.type == 'Cardio' %} <i class="fas fa-running"></i>
-                                    {% else %} <i class="fas fa-dumbbell"></i> {% endif %}
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between">
-                                        <h5 class="mb-1 fw-bold text-dark">
-                                            {% if log.type == 'Musculation' %}{{ log.details.exercice }}{% else %}Cardio{% endif %}
-                                        </h5>
-                                        <small class="text-muted">{{ log.date }}</small>
+                
+                    <!-- ZONE SCROLLABLE -->
+                    <div class="history-scroll-container">
+                        <!-- GRILLE 2 COLONNES -->
+                        <div class="row g-3">
+                            {% for log in history %}
+                                <div class="col-12 col-md-6">
+                                    <div class="custom-card p-3 h-80">
+                                        <div class="d-flex align-items-center">
+                                            <!-- Icône -->
+                                            <div class="icon-box me-3 flex-shrink-0 {{ 'bg-cardio' if log.type == 'Cardio' else 'bg-muscu' }}">
+                                                {% if log.type == 'Cardio' %} <i class="fas fa-running"></i>
+                                                {% else %} <i class="fas fa-dumbbell"></i> {% endif %}
+                                            </div>
+                                            
+                                            <!-- Contenu -->
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <h6 class="mb-0 fw-bold text-dark text-truncate">
+                                                        {% if log.type == 'Musculation' %}{{ log.details.exercice }}{% else %}Cardio{% endif %}
+                                                    </h6>
+                                                    
+                                                    <span class="date-badge flex-shrink-0" style="font-size: 0.7rem; padding: 2px 8px;">
+                                                        {{ log.date | date_fr }}
+                                                    </span>
+                                                </div>
+
+                                                <!-- LIGNE 2 : Détails -->
+                                                <div class="text-muted small text-truncate">
+                                                    {% if log.type == 'Cardio' %}
+                                                        {{ log.details.distance_km }}km / {{ log.details.duree_min }}min
+                                                        {% if log.details.duree_min and log.details.duree_min > 0 %}
+                                                            <span class="fw-bold text-primary">
+                                                                ({{ (log.details.distance_km * 60 / log.details.duree_min)|round(1) }} km/h)
+                                                            </span>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {{ log.details.poids }}kg x {{ log.details.repetitions }} reps
+                                                    {% endif %}
+                                                </div>
+
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="text-muted small">
-                                        {% if log.type == 'Cardio' %}
-                                            {{ log.details.distance }} km en {{ log.details.duree }} min
-                                        {% else %}
-                                            {{ log.details.poids }} kg x {{ log.details.reps }} reps
-                                        {% endif %}
-                                    </div>
                                 </div>
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                 {% endif %}
             </div>
@@ -132,6 +155,7 @@
             document.getElementById('cardioFields').style.display = (type === 'Cardio') ? 'block' : 'none';
             document.getElementById('muscuFields').style.display = (type === 'Musculation') ? 'block' : 'none';
         }
+        document.addEventListener('DOMContentLoaded', toggleFields);
     </script>
 </body>
 </html>

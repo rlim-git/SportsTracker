@@ -3,17 +3,18 @@
     --dark-bg: #2f3542;
     --darker-bg: #1e272e;
 }
+
 body {
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #f0f2f5;
 }
 
 footer {
     background-color: #000;
-    padding: 2rem 0;
+    padding: 1.6rem 0;
     text-align: center;
-    font-size: 0.9rem;
-    color: #747d8c;
+    font-size: 1.1rem;
+    color: #f0f2f5;
 }
 
 /* HERO ACCUEIL */
@@ -45,6 +46,7 @@ footer {
     margin-bottom: 2rem;
     border-radius: 0 0 20px 20px;
 }
+
 .custom-card { border: none; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); background: white; }
 .icon-box { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.5rem; }
 .bg-cardio { background-color: #e3f2fd; color: #1976d2; }
@@ -54,3 +56,41 @@ footer {
 .login-page { background-color: #2f3542; background-image: radial-gradient(#3d4554 1px, transparent 1px); background-size: 20px 20px; color: #333; }
 .login-card { background: white; padding: 3rem 2rem; border-radius: 20px; width: 100%; max-width: 400px; margin: auto; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
 .form-floating input:focus { box-shadow: none; border-color: var(--primary-color); }
+
+/* STYLE DATE */
+.date-badge {
+    background-color: #f8f9fa;
+    color: #636e72;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid #dfe6e9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    white-space: nowrap;
+}
+
+/* ZONE DE SCROLL HISTORIQUE --- */
+.history-scroll-container {
+    max-height: 550px; /* Hauteur max (ajustée pour correspondre à peu près au formulaire à gauche) */
+    overflow-y: auto;  /* Active la barre de défilement verticale si ça dépasse */
+    overflow-x: hidden; /* Cache la barre horizontale */
+    padding-right: 5px; /* Petit espace pour ne pas que le contenu colle à la barre */
+}
+
+/* Personnalisation de la barre de défilement (Webkit: Chrome, Edge, Safari) */
+.history-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+.history-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+}
+.history-scroll-container::-webkit-scrollbar-thumb {
+    background: #bdc3c7; 
+    border-radius: 10px;
+}
+.history-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6; 
+}
