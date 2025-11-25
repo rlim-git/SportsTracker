@@ -26,7 +26,7 @@ SportTracker/
 ├── src/
 │   ├── templates/           # Code source de l'application
 |   |   └── Fichiers HTML
-|   ├── static/css/         # Fichiers CSS
+|   ├── static/css/          # Fichiers CSS
 │   ├── Dockerfile           # Build l'image du serveur web
 │   └── requirements.txt     # Dépendances
 ├── data/
