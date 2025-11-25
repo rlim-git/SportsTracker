@@ -60,19 +60,28 @@ Assurez-vous d'avoir installé sur votre machine :
 1.  Placez-vous à la racine du projet (`SportTracker/`).
 
 2.  Lancez tous les services (Web, PostgreSQL, MongoDB) :
+
 ```bash
 docker compose up --build -d
 ```
 
-3.  Vérifiez que les trois conteneurs sont en cours d'exécution :
+3.  Vérifiez que les quatres conteneurs sont en cours d'exécution :
 
 ```bash
-docker ps
+docker ps -a
  ```
 
 *Votre application Web devrait être accessible à l'adresse suivante :* `http://localhost:80`
 
-### Arrêt de l'environnement
+### Arrêt d'un conteneur
+
+Pour arrêter un conteneur précis :
+
+```bash
+docker compose stop \<nom du service\>
+```
+
+### Suppression de l'environnement
 
 Pour arrêter et supprimer les conteneurs (mais conserver les volumes de données) :
 
