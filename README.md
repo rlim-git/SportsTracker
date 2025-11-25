@@ -78,7 +78,7 @@ docker ps -a
 Pour arrêter un conteneur précis :
 
 ```bash
-docker compose stop \<nom du service\>
+docker compose stop <nom du service>
 ```
 
 ### Suppression de l'environnement
