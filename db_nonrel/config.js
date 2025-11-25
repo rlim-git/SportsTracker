@@ -12,6 +12,7 @@ db.users_profile.updateOne(
         $setOnInsert: {
             user_id: 1,
             username: "admin",
+            password: "admin",
             created_at: new Date(),
             poids: 80,
             taille: 180,

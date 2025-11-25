@@ -16,15 +16,33 @@
                 <div class="mb-4">
                     <i class="fas fa-user-astronaut fa-3x text-primary"></i>
                 </div>
-                <h3 class="mb-4 fw-bold">Espace Membre</h3>
+                <h3 class="mb-2 fw-bold">Espace Membre</h3>
+                <p class="text-muted small mb-4">Choisissez votre source d'authentification</p>
 
                 {% if error %}
-                <div class="alert alert-danger p-2 small mb-3">
-                    <i class="fas fa-exclamation-circle me-1"></i> {{ error }}
-                </div>
+                    <div class="alert alert-danger p-2 small mb-3">
+                        <i class="fas fa-exclamation-circle me-1"></i> {{ error }}
+                    </div>
                 {% endif %}
 
                 <form method="POST" action="/login">
+                    
+                    <!-- SÉLECTEUR DE BASE DE DONNÉES -->
+                    <div class="db-selector mb-4">
+                        <div class="btn-group w-100" role="group" aria-label="Database select">
+                            
+                            <input type="radio" class="btn-check" name="db_source" id="db_postgres" value="postgres" checked>
+                            <label class="btn btn-outline-primary fw-bold" for="db_postgres">
+                                <i class="fas fa-database me-2"></i>Postgres
+                            </label>
+                          
+                            <input type="radio" class="btn-check" name="db_source" id="db_mongo" value="mongo">
+                            <label class="btn btn-outline-success fw-bold" for="db_mongo">
+                                <i class="fas fa-leaf me-2"></i>Mongo
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="form-floating mb-3">
                         <input type="text" name="username" class="form-control" id="floatingInput" placeholder="Pseudo" required>
                         <label for="floatingInput">Nom d'utilisateur</label>

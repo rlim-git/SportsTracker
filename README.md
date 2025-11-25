@@ -83,5 +83,5 @@ docker compose down
 ### Pour supprimer les conteneurs et les volumes de données persistants :
 
 ```Bash
-docker compose down --volumes
+docker compose down -v
 ```

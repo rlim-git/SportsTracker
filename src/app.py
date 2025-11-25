@@ -19,38 +19,30 @@ MONGO_HOST = os.environ.get('MONGO_HOST', 'mongo')
 MONGO_USER = os.environ.get('MONGO_USER', 'root')
 MONGO_PASS = os.environ.get('MONGO_PASS', 'password')
 
-# --- FILTRE DE DATE PERSONNALISÉ ---
+# --- FILTRE DATE ---
 @app.template_filter('date_fr')
 def date_fr(value):
     if not value: return ""
-    # Mapping manuel pour éviter les problèmes de locale sur Docker
-    mois = {
-        '01': 'Janvier', '02': 'Février', '03': 'Mars', '04': 'Avril',
-        '05': 'Mai', '06': 'Juin', '07': 'Juillet', '08': 'Août',
-        '09': 'Septembre', '10': 'Octobre', '11': 'Novembre', '12': 'Décembre'
-    }
+    mois = {'01': 'Janvier', '02': 'Février', '03': 'Mars', '04': 'Avril', '05': 'Mai', '06': 'Juin', '07': 'Juillet', '08': 'Août', '09': 'Septembre', '10': 'Octobre', '11': 'Novembre', '12': 'Décembre'}
     try:
         if isinstance(value, str):
             parts = value.split('-')
-            if len(parts) == 3:
-                annee, mois_num, jour = parts
-                return f"{jour} {mois.get(mois_num, mois_num)} {annee}"
+            if len(parts) == 3: return f"{parts[2]} {mois.get(parts[1], parts[1])} {parts[0]}"
         elif isinstance(value, datetime):
             return f"{value.day} {mois.get(f'{value.month:02}', str(value.month))} {value.year}"
-    except:
-        return value # En cas d'erreur, on renvoie la date originale
+    except: return value
     return value
 
-# --- FONCTIONS BDD ---
+# --- CONNEXIONS ---
 def get_pg_connection():
-    conn = psycopg2.connect(host=PG_HOST, database=PG_DB, user=PG_USER, password=PG_PASSWORD)
-    return conn
+    return psycopg2.connect(host=PG_HOST, database=PG_DB, user=PG_USER, password=PG_PASSWORD)
 
 uri = "mongodb://%s:%s@%s:27017/" % (quote_plus(MONGO_USER), quote_plus(MONGO_PASS), MONGO_HOST)
 try:
     client = MongoClient(uri)
     mongo_db = client['workout_db']
     workouts_collection = mongo_db['sessions']
+    profiles_collection = mongo_db['users_profile']
 except Exception as e:
     print(f"Erreur connexion Mongo: {e}")
 
@@ -73,13 +65,16 @@ def register():
             conn = get_pg_connection()
             cur = conn.cursor()
             try:
+                # 1. SQL (Maître)
                 cur.execute("INSERT INTO users (username, password) VALUES (%s, %s) RETURNING id", (username, password))
                 new_user_id = cur.fetchone()[0]
                 conn.commit()
                 
-                mongo_db['users_profile'].insert_one({
+                # 2. Mongo (Esclave + Auth possible)
+                profiles_collection.insert_one({
                     "user_id": new_user_id,
                     "username": username,
+                    "password": password,
                     "created_at": datetime.now(),
                     "poids": None,
                     "taille": None
@@ -103,19 +98,47 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password_input = request.form['password']
-        conn = get_pg_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT id, username, password FROM users WHERE username = %s", (username,))
-        user = cur.fetchone()
-        cur.close()
-        conn.close()
+        db_source = request.form.get('db_source', 'postgres') # 'postgres' ou 'mongo'
 
-        if user and user[2] == password_input:
-            session['user_id'] = user[0]
-            session['username'] = user[1]
+        user_found = None
+        
+        # --- CAS 1 : Connexion via POSTGRES ---
+        if db_source == 'postgres':
+            try:
+                conn = get_pg_connection()
+                cur = conn.cursor()
+                cur.execute("SELECT id, username, password FROM users WHERE username = %s", (username,))
+                user_sql = cur.fetchone()
+                cur.close()
+                conn.close()
+                
+                if user_sql and user_sql[2] == password_input:
+                    user_found = {'id': user_sql[0], 'username': user_sql[1]}
+            except Exception as e:
+                error = f"Erreur SQL: {e}"
+
+        # --- CAS 2 : Connexion via MONGO ---
+        elif db_source == 'mongo':
+            try:
+                # On cherche l'utilisateur dans la collection profiles
+                user_mongo = profiles_collection.find_one({"username": username})
+                
+                if user_mongo and user_mongo.get('password') == password_input:
+                    user_found = {'id': user_mongo['user_id'], 'username': user_mongo['username']}
+                elif user_mongo and 'password' not in user_mongo:
+                    error = "Ce compte ancien n'a pas de mot de passe Mongo. Utilisez Postgres."
+            except Exception as e:
+                error = f"Erreur Mongo: {e}"
+
+        # --- VERDICT ---
+        if user_found:
+            session['user_id'] = user_found['id']
+            session['username'] = user_found['username']
+            session['source'] = db_source
             return redirect('/dashboard')
         else:
-            error = "Identifiants incorrects."
+            if not error: error = f"Identifiants incorrects (via {db_source})."
+
     return render_template('login.html', error=error)
 
 @app.route('/logout')
@@ -132,62 +155,36 @@ def dashboard():
     if request.method == 'POST':
         workout_type = request.form.get('type')
         date_str = request.form.get('date')
-        
-        # SQL : Insertion principale
         conn = get_pg_connection()
         cur = conn.cursor()
-        
         try:
-            # On prépare les variables pour SQL (NULL par défaut)
-            exercice = None
-            poids = None
-            reps = None
-            distance = None
-            duree = None
-
-            doc_details = {} # Pour Mongo
+            exercice, poids, reps, distance, duree = None, None, None, None, None
+            doc_details = {}
 
             if workout_type == 'Cardio':
                 distance = float(request.form.get('distance', 0) or 0)
                 duree = int(request.form.get('duree', 0) or 0)
-                # Requête SQL Cardio
-                cur.execute("""
-                    INSERT INTO sessions (user_id, type, date, distance_km, duree_min)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (current_user_id, workout_type, date_str, distance, duree))
-                
+                cur.execute("INSERT INTO sessions (user_id, type, date, distance_km, duree_min) VALUES (%s, %s, %s, %s, %s)", 
+                           (current_user_id, workout_type, date_str, distance, duree))
                 doc_details = {'distance_km': distance, 'duree_min': duree}
-
             elif workout_type == 'Musculation':
                 exercice = request.form.get('exercice')
                 poids = float(request.form.get('poids', 0) or 0)
                 reps = int(request.form.get('reps', 0) or 0)
-                # Requête SQL Muscu
-                cur.execute("""
-                    INSERT INTO sessions (user_id, type, date, exercice, poids, repetitions)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                """, (current_user_id, workout_type, date_str, exercice, poids, reps))
-                
+                cur.execute("INSERT INTO sessions (user_id, type, date, exercice, poids, repetitions) VALUES (%s, %s, %s, %s, %s, %s)", 
+                           (current_user_id, workout_type, date_str, exercice, poids, reps))
                 doc_details = {'exercice': exercice, 'poids': poids, 'repetitions': reps}
             
             conn.commit()
-
-            # Mongo : Insertion copie (Optionnel si tu passes tout en SQL, mais on garde pour l'exemple hybride)
             workouts_collection.insert_one({
-                "user_id": current_user_id,
-                "username": current_username,
-                "type": workout_type,
-                "date": date_str,
-                "details": doc_details
+                "user_id": current_user_id, "username": current_username, "type": workout_type, "date": date_str, "details": doc_details
             })
-
         except Exception as e:
             conn.rollback()
-            print(f"Erreur SQL: {e}")
+            print(f"Erreur: {e}")
         finally:
             cur.close()
             conn.close()
-            
         return redirect('/dashboard')
 
     history = list(workouts_collection.find({"user_id": current_user_id}).sort("date", -1))
