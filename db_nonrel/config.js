@@ -3,24 +3,6 @@ db = db.getSiblingDB('workout_db');
 
 // Création des collections
 try { db.createCollection('sessions'); } catch (e) { print("Collection 'sessions' existe déjà"); }
-try { db.createCollection('users_profile'); } catch (e) { print("Collection 'users_profile' existe déjà"); }
-
-// 1. Profil ADMIN
-db.users_profile.updateOne(
-    { username: "admin" },
-    {
-        $setOnInsert: {
-            user_id: 1,
-            username: "admin",
-            password: "admin",
-            created_at: new Date(),
-            poids: 80,
-            taille: 180,
-            role: "super_admin"
-        }
-    },
-    { upsert: true }
-);
 
 // 2. Séance CARDIO (Mêmes valeurs que SQL)
 db.sessions.updateOne(

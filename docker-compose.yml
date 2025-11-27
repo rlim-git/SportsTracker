@@ -5,8 +5,10 @@ services:
     container_name: sportstracker_app
     restart: always
     depends_on:
-      - postgres
-      - mongo
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
     environment:
       - POSTGRES_HOST=postgres
       - MONGO_HOST=mongo
@@ -22,9 +24,8 @@ services:
     container_name: sportstracker_nginx
     restart: always
     ports:
-      - "80:80"  # C'est le seul port ouvert vers votre machine
+      - "80:80"  # C'est le port où le projet se trouve dans le localhost
     volumes:
-      # On injecte le fichier de conf (voir ci-dessous)
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - app
@@ -43,6 +44,12 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ./db_rel/init.sql:/docker-entrypoint-initdb.d/init.sql
+    # --- HEALTHCHECK ---
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d sportdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   # --- 4. Base de données Non-Relationnelle (MongoDB) ---
   mongo:
