@@ -113,6 +113,33 @@ def login():
             error = f"Erreur connexion base de données: {e}"
     return render_template('login.html', error=error)
 
+# --- ROUTE CONNEXION DÉMO ---
+@app.route('/demo_login')
+def demo_login():
+    try:
+        conn = get_pg_connection()
+        cur = conn.cursor()
+        # On cherche l'utilisateur 'Demo' créé par init.sql
+        cur.execute("SELECT id, username FROM users WHERE username = 'Demo'")
+        user_demo = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if user_demo:
+            # Connexion automatique sans mot de passe
+            session['user_id'] = user_demo[0]
+            session['username'] = user_demo[1]
+            flash("Bienvenue sur le compte de démonstration !", "success")
+            return redirect('/dashboard')
+        else:
+            flash("Le compte démo n'est pas encore initialisé.", "error")
+            return redirect('/')
+            
+    except Exception as e:
+        print(f"Erreur Demo: {e}")
+        flash("Impossible de se connecter au compte démo.", "error")
+        return redirect('/')
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -122,7 +149,13 @@ def logout():
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
     if 'user_id' not in session: return redirect('/login')
-    
+
+    # --- PROTECTION DU COMPTE DÉMO ---
+    if session.get('username') == 'Demo':
+        flash("Action interdite : Le compte de démonstration ne peut pas être supprimé.", "error")
+        return redirect('/dashboard')
+    # ---------------------------------
+
     user_id = session['user_id']
     
     try:

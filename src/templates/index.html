@@ -23,10 +23,12 @@
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
                 
-                <!-- Bouton Supprimer Compte (Ouvre la Modale) -->
-                <button type="button" class="btn btn-sm btn-outline-danger ms-1 border-0" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" title="Supprimer mon compte">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                <!-- Bouton Supprimer Compte (CACHÉ SI DEMO) -->
+                {% if username != 'Demo' %}
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-1 border-0" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" title="Supprimer mon compte">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                {% endif %}
             </div>
         </div>
     </header>

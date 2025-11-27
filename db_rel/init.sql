@@ -13,3 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT INTO users (username, password)
 VALUES ('admin', 'admin')
 ON CONFLICT (username) DO NOTHING;
+
+-- 4. Création du compte Demo
+INSERT INTO users (username, password)
+VALUES ('Demo', '')
+ON CONFLICT (username) DO NOTHING;
