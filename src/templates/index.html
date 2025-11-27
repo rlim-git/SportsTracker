@@ -68,19 +68,30 @@
 
                         <div id="muscuFields" style="display:none;">
                             <div class="mb-3">
-                                <label class="small text-muted">Exercice</label>
-                                <input type="text" name="exercice" placeholder="Ex: Bench Press" class="form-control bg-light border-0">
+                                <label class="small text-muted">Titre de la séance</label>
+                                <input type="text" name="seance_title" placeholder="Ex: Push Day" class="form-control bg-light border-0">
                             </div>
-                            <div class="row g-2">
-                                <div class="col-6">
-                                    <label class="small text-muted">Poids (kg)</label>
-                                    <input type="number" name="poids" class="form-control bg-light border-0">
-                                </div>
-                                <div class="col-6">
-                                    <label class="small text-muted">Reps</label>
-                                    <input type="number" name="reps" class="form-control bg-light border-0">
+
+                            <div id="exercises-container">
+                                <div class="exercise-entry row g-2 mb-2 align-items-center">
+                                    <div class="col-5">
+                                        <input type="text" name="exercice" placeholder="Exercice" class="form-control bg-light border-0">
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="number" name="poids" placeholder="Poids" class="form-control bg-light border-0">
+                                    </div>
+                                    <div class="col-3">
+                                        <input type="number" name="reps" placeholder="Reps" class="form-control bg-light border-0">
+                                    </div>
+                                    <div class="col-1">
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeExercise(this)"><i class="fas fa-minus-circle"></i></button>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <button type="button" id="add-exercise-btn" class="btn btn-sm btn-outline-primary w-100 mt-2">
+                                <i class="fas fa-plus me-1"></i> Ajouter un exercice
+                            </button>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 btn-lg mt-4 rounded-pill">
@@ -117,23 +128,27 @@
                                             </button>
                                         </form>
 
-                                        <div class="d-flex align-items-center pe-4"> <!-- Padding right pour éviter la croix -->
+                                        <div class="d-flex align-items-start pe-4"> <!-- align-items-start pour un meilleur alignement vertical -->
                                             <div class="icon-box me-3 flex-shrink-0 {{ 'bg-cardio' if log.type == 'Cardio' else 'bg-muscu' }}">
                                                 {% if log.type == 'Cardio' %} <i class="fas fa-running"></i>
                                                 {% else %} <i class="fas fa-dumbbell"></i> {% endif %}
                                             </div>
                                             
                                             <div class="flex-grow-1 overflow-hidden">
-                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                <div class="d-flex align-items-center gap-2 mb-2">
                                                     <h6 class="mb-0 fw-bold text-dark text-truncate">
-                                                        {% if log.type == 'Musculation' %}{{ log.details.exercice }}{% else %}Cardio{% endif %}
+                                                        {% if log.type == 'Musculation' %}
+                                                            {{ log.title or log.details.exercice }} <!-- Compatible ancien/nouveau format -->
+                                                        {% else %}
+                                                            Cardio
+                                                        {% endif %}
                                                     </h6>
                                                     <span class="date-badge flex-shrink-0" style="font-size: 0.7rem; padding: 2px 8px;">
                                                         {{ log.date | date_fr }}
                                                     </span>
                                                 </div>
 
-                                                <div class="text-muted small text-truncate">
+                                                <div class="text-muted small">
                                                     {% if log.type == 'Cardio' %}
                                                         {{ log.details.distance_km }}km / {{ log.details.duree_min }}min
                                                         {% if log.details.duree_min and log.details.duree_min > 0 %}
@@ -141,7 +156,13 @@
                                                                 ({{ (log.details.distance_km * 60 / log.details.duree_min)|round(1) }} km/h)
                                                             </span>
                                                         {% endif %}
-                                                    {% else %}
+                                                    {% elif log.exercises %} <!-- Nouveau format Musculation -->
+                                                        <ul class="list-unstyled mb-0 ps-1" style="font-size: 0.9em;">
+                                                            {% for exo in log.exercises %}
+                                                                <li>- {{ exo.exercice }}: <b>{{ exo.poids }}kg</b> x {{ exo.repetitions }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    {% else %} <!-- Ancien format Musculation -->
                                                         {{ log.details.poids }}kg x {{ log.details.repetitions }} reps
                                                     {% endif %}
                                                 </div>
@@ -207,6 +228,22 @@
             document.getElementById('muscuFields').style.display = (type === 'Musculation') ? 'block' : 'none';
         }
         document.addEventListener('DOMContentLoaded', toggleFields);
+
+        document.getElementById('add-exercise-btn').addEventListener('click', function() {
+            const container = document.getElementById('exercises-container');
+            const newExercise = container.firstElementChild.cloneNode(true);
+            newExercise.querySelectorAll('input').forEach(input => input.value = '');
+            container.appendChild(newExercise);
+        });
+
+        function removeExercise(button) {
+            const container = document.getElementById('exercises-container');
+            if (container.childElementCount > 1) {
+                button.closest('.exercise-entry').remove();
+            } else {
+                button.closest('.exercise-entry').querySelectorAll('input').forEach(input => input.value = '');
+            }
+        }
 
         setTimeout(function() {
             const toasts = document.querySelectorAll('.toast-notification');

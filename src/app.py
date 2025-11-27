@@ -204,25 +204,48 @@ def dashboard():
     if request.method == 'POST':
         workout_type = request.form.get('type')
         date_str = request.form.get('date')
+        
+        doc_to_insert = {
+            "user_id": current_user_id, 
+            "username": current_username, 
+            "type": workout_type, 
+            "date": date_str
+        }
+
         try:
-            doc_details = {}
             if workout_type == 'Cardio':
                 distance = float(request.form.get('distance', 0) or 0)
                 duree = int(request.form.get('duree', 0) or 0)
-                doc_details = {'distance_km': distance, 'duree_min': duree}
-            elif workout_type == 'Musculation':
-                exercice = request.form.get('exercice')
-                poids = float(request.form.get('poids', 0) or 0)
-                reps = int(request.form.get('reps', 0) or 0)
-                doc_details = {'exercice': exercice, 'poids': poids, 'repetitions': reps}
+                doc_to_insert["details"] = {'distance_km': distance, 'duree_min': duree}
             
-            workouts_collection.insert_one({
-                "user_id": current_user_id, "username": current_username, "type": workout_type, "date": date_str, "details": doc_details
-            })
+            elif workout_type == 'Musculation':
+                doc_to_insert["title"] = request.form.get('seance_title') or f"Musculation du {date_str}"
+                
+                exercices = request.form.getlist('exercice')
+                poids_list = request.form.getlist('poids')
+                reps_list = request.form.getlist('reps')
+                
+                exercises_data = []
+                for i in range(len(exercices)):
+                    if exercices[i]: # On ajoute seulement si le nom de l'exercice est renseigné
+                        exercises_data.append({
+                            'exercice': exercices[i],
+                            'poids': float(poids_list[i] or 0),
+                            'repetitions': int(reps_list[i] or 0)
+                        })
+                
+                if not exercises_data:
+                    flash("Veuillez ajouter au moins un exercice pour une séance de musculation.", "error")
+                    return redirect('/dashboard')
+                
+                doc_to_insert["exercises"] = exercises_data
+            
+            workouts_collection.insert_one(doc_to_insert)
             flash("Session d'entrainement ajoutée !", "success")
+
         except Exception as e:
             print(f"Erreur Mongo: {e}")
-            flash("Affiche problème", "error")
+            flash("Un problème est survenu lors de l'ajout de la séance.", "error")
         return redirect('/dashboard')
 
     history = list(workouts_collection.find({"user_id": current_user_id}).sort("date", -1))
