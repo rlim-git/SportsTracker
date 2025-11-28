@@ -34,6 +34,53 @@
     </header>
 
     <div class="container pb-3">
+        <!-- SECTION STATS -->
+        <div class="custom-card p-4 mb-4">
+            <h4 class="mb-3 text-primary"><i class="fas fa-chart-line me-2"></i>Résumé de l'activité</h4>
+            
+            <ul class="nav nav-tabs nav-fill mb-3" id="statsTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="week-tab" data-bs-toggle="tab" data-bs-target="#week-panel" type="button" role="tab">7 jours</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="month-tab" data-bs-toggle="tab" data-bs-target="#month-panel" type="button" role="tab">30 jours</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="quarter-tab" data-bs-toggle="tab" data-bs-target="#quarter-panel" type="button" role="tab">90 jours</button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-2" id="statsTabContent">
+                <!-- 7 JOURS -->
+                <div class="tab-pane fade show active" id="week-panel" role="tabpanel">
+                    <div class="row text-center g-3">
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.week.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.week.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.week.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.week.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                    </div>
+                </div>
+                <!-- 30 JOURS -->
+                <div class="tab-pane fade" id="month-panel" role="tabpanel">
+                    <div class="row text-center g-3">
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.month.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.month.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.month.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.month.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                    </div>
+                </div>
+                <!-- 90 JOURS -->
+                <div class="tab-pane fade" id="quarter-panel" role="tabpanel">
+                    <div class="row text-center g-3">
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.quarter.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.quarter.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.quarter.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
+                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.quarter.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- FIN SECTION STATS -->
         <div class="row g-4">
             <!-- FORMULAIRE (Gauche) -->
             <div class="col-lg-4">

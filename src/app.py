@@ -1,6 +1,6 @@
 import os
 import psycopg2
-from datetime import datetime
+from datetime import datetime, timedelta
 from psycopg2 import IntegrityError
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from pymongo import MongoClient
@@ -195,6 +195,44 @@ def delete_session(session_id):
         
     return redirect('/dashboard')
 
+def get_stats_for_period(start_date, end_date, user_id):
+    """Calcule les statistiques d'entraînement pour une période donnée."""
+    query = {
+        "user_id": user_id,
+        "date": {
+            "$gte": start_date.strftime('%Y-%m-%d'),
+            "$lte": end_date.strftime('%Y-%m-%d')
+        }
+    }
+    workouts = list(workouts_collection.find(query))
+
+    stats = {
+        'total_sessions': len(workouts),
+        'cardio_sessions': 0,
+        'muscu_sessions': 0,
+        'total_distance_km': 0,
+        'total_duree_min': 0,
+        'total_volume_kg': 0
+    }
+
+    for w in workouts:
+        if w['type'] == 'Cardio':
+            stats['cardio_sessions'] += 1
+            stats['total_distance_km'] += w.get('details', {}).get('distance_km', 0)
+            stats['total_duree_min'] += w.get('details', {}).get('duree_min', 0)
+        elif w['type'] == 'Musculation':
+            stats['muscu_sessions'] += 1
+            if 'exercises' in w and w['exercises']: # Nouveau format
+                for exo in w['exercises']:
+                    stats['total_volume_kg'] += exo.get('poids', 0) * exo.get('repetitions', 0)
+            elif 'details' in w: # Ancien format compatible
+                stats['total_volume_kg'] += w.get('details', {}).get('poids', 0) * w.get('details', {}).get('repetitions', 0)
+    
+    stats['total_distance_km'] = round(stats['total_distance_km'], 1)
+    stats['total_volume_kg'] = int(stats['total_volume_kg'])
+
+    return stats
+
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'user_id' not in session: return redirect('/login')
@@ -248,8 +286,20 @@ def dashboard():
             flash("Un problème est survenu lors de l'ajout de la séance.", "error")
         return redirect('/dashboard')
 
+    # --- LOGIQUE STATS ---
+    today = datetime.now()
+    stats_week = get_stats_for_period(today - timedelta(days=7), today, current_user_id)
+    stats_month = get_stats_for_period(today - timedelta(days=30), today, current_user_id)
+    stats_3months = get_stats_for_period(today - timedelta(days=90), today, current_user_id)
+    
+    stats_summary = {
+        'week': stats_week,
+        'month': stats_month,
+        'quarter': stats_3months
+    }
+
     history = list(workouts_collection.find({"user_id": current_user_id}).sort("date", -1))
-    return render_template('index.html', username=current_username, history=history)
+    return render_template('index.html', username=current_username, history=history, stats=stats_summary)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
