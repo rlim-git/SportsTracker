@@ -4,7 +4,7 @@ db = db.getSiblingDB('workout_db');
 // Création des collections
 try { db.createCollection('sessions'); } catch (e) { print("Collection 'sessions' existe déjà"); }
 
-// 2. Séance CARDIO (Mêmes valeurs que SQL)
+// 2. Séance CARDIO (Reste inchangée, utilise toujours 'details')
 db.sessions.updateOne(
     { user_id: 1, type: "Cardio", info: "init_test" },
     {
@@ -22,7 +22,7 @@ db.sessions.updateOne(
     { upsert: true }
 );
 
-// 3. Séance MUSCULATION (Mêmes valeurs que SQL)
+// 3. Séance MUSCULATION (Mise à jour : Tableau 'exercises')
 db.sessions.updateOne(
     { user_id: 1, type: "Musculation", info: "init_test" },
     {
@@ -31,11 +31,21 @@ db.sessions.updateOne(
             username: "admin",
             type: "Musculation",
             date: new Date().toISOString().split('T')[0],
-            details: {
-                exercice: "Bench Press",
-                poids: 80,
-                repetitions: 10
-            }
+            
+            // NOUVEAU FORMAT : Titre + Liste d'exercices
+            title: "Séance Full Body (Démo)",
+            exercises: [
+                {
+                    exercice: "Bench Press",
+                    poids: 80,
+                    repetitions: 10
+                },
+                {
+                    exercice: "Squat",
+                    poids: 100,
+                    repetitions: 8
+                }
+            ]
         }
     },
     { upsert: true }

@@ -18,12 +18,10 @@
                 <i class="fas fa-user-circle me-2 text-primary"></i> 
                 Bonjour, <strong>{{ username }}</strong>
                 
-                <!-- Bouton Déconnexion -->
                 <a href="/logout" class="btn btn-sm btn-outline-secondary ms-3 border-0" title="Se déconnecter">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
                 
-                <!-- Bouton Supprimer Compte (CACHÉ SI DEMO) -->
                 {% if username != 'Demo' %}
                     <button type="button" class="btn btn-sm btn-outline-danger ms-1 border-0" data-bs-toggle="modal" data-bs-target="#deleteAccountModal" title="Supprimer mon compte">
                         <i class="fas fa-trash-alt"></i>
@@ -39,48 +37,67 @@
             <h4 class="mb-3 text-primary"><i class="fas fa-chart-line me-2"></i>Résumé de l'activité</h4>
             
             <ul class="nav nav-tabs nav-fill mb-3" id="statsTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="week-tab" data-bs-toggle="tab" data-bs-target="#week-panel" type="button" role="tab">7 jours</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="month-tab" data-bs-toggle="tab" data-bs-target="#month-panel" type="button" role="tab">30 jours</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="quarter-tab" data-bs-toggle="tab" data-bs-target="#quarter-panel" type="button" role="tab">90 jours</button>
-                </li>
+                <li class="nav-item"><button class="nav-link active" id="week-tab" data-bs-toggle="tab" data-bs-target="#week-panel" type="button">7 jours</button></li>
+                <li class="nav-item"><button class="nav-link" id="month-tab" data-bs-toggle="tab" data-bs-target="#month-panel" type="button">30 jours</button></li>
+                <li class="nav-item"><button class="nav-link" id="quarter-tab" data-bs-toggle="tab" data-bs-target="#quarter-panel" type="button">90 jours</button></li>
             </ul>
 
             <div class="tab-content p-2" id="statsTabContent">
                 <!-- 7 JOURS -->
-                <div class="tab-pane fade show active" id="week-panel" role="tabpanel">
-                    <div class="row text-center g-3">
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.week.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.week.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.week.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.week.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                <div class="tab-pane fade show active" id="week-panel">
+                    <div class="row text-center g-3 justify-content-center">
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.week.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.week.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.week.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.week.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                        
+                        <!-- COOKIES -->
+                        <div class="col-6 col-md-2">
+                            <h4 class="fw-bold mb-0 text-warning">{{ stats.week.total_cookies }}</h4>
+                            <small class="text-muted" title="{{ stats.week.total_calories }} kcal brûlées">
+                                <i class="fas fa-cookie-bite me-1 text-warning"></i>Cookies
+                            </small>
+                        </div>
                     </div>
                 </div>
                 <!-- 30 JOURS -->
-                <div class="tab-pane fade" id="month-panel" role="tabpanel">
-                    <div class="row text-center g-3">
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.month.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.month.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.month.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.month.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                <div class="tab-pane fade" id="month-panel">
+                    <div class="row text-center g-3 justify-content-center">
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.month.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.month.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.month.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.month.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                        
+                        <!-- COOKIES -->
+                        <div class="col-6 col-md-2">
+                            <h4 class="fw-bold mb-0 text-warning">{{ stats.month.total_cookies }}</h4>
+                            <small class="text-muted" title="{{ stats.month.total_calories }} kcal brûlées">
+                                <i class="fas fa-cookie-bite me-1 text-warning"></i>Cookies
+                            </small>
+                        </div>
                     </div>
                 </div>
                 <!-- 90 JOURS -->
-                <div class="tab-pane fade" id="quarter-panel" role="tabpanel">
-                    <div class="row text-center g-3">
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.quarter.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.quarter.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ stats.quarter.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
-                        <div class="col-6 col-md-3"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.quarter.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                <div class="tab-pane fade" id="quarter-panel">
+                    <div class="row text-center g-3 justify-content-center">
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.quarter.total_sessions }}</h4><small class="text-muted"><i class="fas fa-calendar-alt me-1"></i>Séances</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.quarter.total_distance_km }} km</h4><small class="text-muted"><i class="fas fa-running me-1"></i>Distance</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ stats.quarter.total_duree_min }} min</h4><small class="text-muted"><i class="fas fa-stopwatch me-1"></i>Durée</small></div>
+                        <div class="col-6 col-md-2"><h4 class="fw-bold mb-0">{{ "{:,.0f}".format(stats.quarter.total_volume_kg).replace(',', ' ') }} kg</h4><small class="text-muted"><i class="fas fa-dumbbell me-1"></i>Volume</small></div>
+                        
+                        <!-- COOKIES -->
+                        <div class="col-6 col-md-2">
+                            <h4 class="fw-bold mb-0 text-warning">{{ stats.quarter.total_cookies }}</h4>
+                            <small class="text-muted" title="{{ stats.quarter.total_calories }} kcal brûlées">
+                                <i class="fas fa-cookie-bite me-1 text-warning"></i>Cookies
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <!-- FIN SECTION STATS -->
+
         <div class="row g-4">
             <!-- FORMULAIRE (Gauche) -->
             <div class="col-lg-4">
@@ -168,14 +185,13 @@
                                 <div class="col-12 col-md-6">
                                     <div class="custom-card p-3 h-80 position-relative">
                                         
-                                        <!-- BOUTON SUPPRIMER SESSION (Croix) -->
                                         <form action="/delete_session/{{ log._id }}" method="POST" class="position-absolute top-0 end-0 p-2">
                                             <button type="submit" class="btn btn-link text-danger p-0 border-0 text-decoration-none opacity-50 hover-opacity-100" onclick="return confirm('Voulez-vous vraiment supprimer cette séance ?')" title="Supprimer">
                                                 <i class="fas fa-times-circle fs-5"></i>
                                             </button>
                                         </form>
 
-                                        <div class="d-flex align-items-start pe-4"> <!-- align-items-start pour un meilleur alignement vertical -->
+                                        <div class="d-flex align-items-start pe-4">
                                             <div class="icon-box me-3 flex-shrink-0 {{ 'bg-cardio' if log.type == 'Cardio' else 'bg-muscu' }}">
                                                 {% if log.type == 'Cardio' %} <i class="fas fa-running"></i>
                                                 {% else %} <i class="fas fa-dumbbell"></i> {% endif %}
@@ -185,7 +201,7 @@
                                                 <div class="d-flex align-items-center gap-2 mb-2">
                                                     <h6 class="mb-0 fw-bold text-dark text-truncate">
                                                         {% if log.type == 'Musculation' %}
-                                                            {{ log.title or log.details.exercice }} <!-- Compatible ancien/nouveau format -->
+                                                            {{ log.title or log.details.exercice }}
                                                         {% else %}
                                                             Cardio
                                                         {% endif %}
@@ -203,13 +219,13 @@
                                                                 ({{ (log.details.distance_km * 60 / log.details.duree_min)|round(1) }} km/h)
                                                             </span>
                                                         {% endif %}
-                                                    {% elif log.exercises %} <!-- Nouveau format Musculation -->
+                                                    {% elif log.exercises %}
                                                         <ul class="list-unstyled mb-0 ps-1" style="font-size: 0.9em;">
                                                             {% for exo in log.exercises %}
                                                                 <li>- {{ exo.exercice }}: <b>{{ exo.poids }}kg</b> x {{ exo.repetitions }}</li>
                                                             {% endfor %}
                                                         </ul>
-                                                    {% else %} <!-- Ancien format Musculation -->
+                                                    {% else %}
                                                         {{ log.details.poids }}kg x {{ log.details.repetitions }} reps
                                                     {% endif %}
                                                 </div>
@@ -225,7 +241,7 @@
         </div>
     </div>
 
-    <!-- MODALE SUPPRESSION COMPTE -->
+    <!-- MODALE ET TOASTS (Reste inchangé) -->
     <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
@@ -247,7 +263,6 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -265,7 +280,6 @@
         {% endwith %}
     </div>
 
-    <!-- BOOTSTRAP JS (Nécessaire pour la Modale) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from psycopg2 import IntegrityError
 from flask import Flask, render_template, request, redirect, session, url_for, flash
 from pymongo import MongoClient
-from bson.objectid import ObjectId # <--- IMPORTANT
+from bson.objectid import ObjectId
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
@@ -113,20 +113,17 @@ def login():
             error = f"Erreur connexion base de données: {e}"
     return render_template('login.html', error=error)
 
-# --- ROUTE CONNEXION DÉMO ---
 @app.route('/demo_login')
 def demo_login():
     try:
         conn = get_pg_connection()
         cur = conn.cursor()
-        # On cherche l'utilisateur 'Demo' créé par init.sql
         cur.execute("SELECT id, username FROM users WHERE username = 'Demo'")
         user_demo = cur.fetchone()
         cur.close()
         conn.close()
-
+        
         if user_demo:
-            # Connexion automatique sans mot de passe
             session['user_id'] = user_demo[0]
             session['username'] = user_demo[1]
             flash("Bienvenue sur le compte de démonstration !", "success")
@@ -134,7 +131,6 @@ def demo_login():
         else:
             flash("Le compte démo n'est pas encore initialisé.", "error")
             return redirect('/')
-            
     except Exception as e:
         print(f"Erreur Demo: {e}")
         flash("Impossible de se connecter au compte démo.", "error")
@@ -145,21 +141,16 @@ def logout():
     session.clear()
     return redirect('/')
 
-# --- ROUTE : SUPPRESSION COMPTE ---
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
     if 'user_id' not in session: return redirect('/login')
-
-    # --- PROTECTION DU COMPTE DÉMO ---
+    
     if session.get('username') == 'Demo':
         flash("Action interdite : Le compte de démonstration ne peut pas être supprimé.", "error")
         return redirect('/dashboard')
-    # ---------------------------------
-
-    user_id = session['user_id']
     
+    user_id = session['user_id']
     try:
-        # 1. Supprimer User SQL
         conn = get_pg_connection()
         cur = conn.cursor()
         cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
@@ -167,36 +158,30 @@ def delete_account():
         cur.close()
         conn.close()
 
-        # 2. Supprimer TOUTES les données Mongo liées (Séances + Profil)
         workouts_collection.delete_many({"user_id": user_id})
         profiles_collection.delete_many({"user_id": user_id})
 
         session.clear()
         flash("Votre compte et toutes vos données ont été supprimés.", "success")
         return redirect('/')
-        
     except Exception as e:
         print(f"Erreur suppression compte: {e}")
         flash("Erreur lors de la suppression du compte.", "error")
         return redirect('/dashboard')
 
-# --- ROUTE : SUPPRESSION SÉANCE ---
 @app.route('/delete_session/<session_id>', methods=['POST'])
 def delete_session(session_id):
     if 'user_id' not in session: return redirect('/login')
-    
     try:
-        # Suppression simple dans Mongo
         workouts_collection.delete_one({'_id': ObjectId(session_id)})
         flash("Séance supprimée.", "success")
     except Exception as e:
         print(f"Erreur suppression séance: {e}")
         flash("Impossible de supprimer la séance.", "error")
-        
     return redirect('/dashboard')
 
 def get_stats_for_period(start_date, end_date, user_id):
-    """Calcule les statistiques d'entraînement pour une période donnée."""
+    """Calcule les statistiques et les cookies mérités"""
     query = {
         "user_id": user_id,
         "date": {
@@ -212,24 +197,43 @@ def get_stats_for_period(start_date, end_date, user_id):
         'muscu_sessions': 0,
         'total_distance_km': 0,
         'total_duree_min': 0,
-        'total_volume_kg': 0
+        'total_volume_kg': 0,
+        'total_calories': 0  # Nouveau champ
     }
 
     for w in workouts:
         if w['type'] == 'Cardio':
             stats['cardio_sessions'] += 1
-            stats['total_distance_km'] += w.get('details', {}).get('distance_km', 0)
-            stats['total_duree_min'] += w.get('details', {}).get('duree_min', 0)
+            dist = w.get('details', {}).get('distance_km', 0)
+            duree = w.get('details', {}).get('duree_min', 0)
+            
+            stats['total_distance_km'] += dist
+            stats['total_duree_min'] += duree
+            
+            # Estimation Cardio: ~10 kcal / min
+            stats['total_calories'] += (duree * 10)
+
         elif w['type'] == 'Musculation':
             stats['muscu_sessions'] += 1
-            if 'exercises' in w and w['exercises']: # Nouveau format
+            session_volume = 0
+            
+            if 'exercises' in w and w['exercises']:
                 for exo in w['exercises']:
-                    stats['total_volume_kg'] += exo.get('poids', 0) * exo.get('repetitions', 0)
-            elif 'details' in w: # Ancien format compatible
-                stats['total_volume_kg'] += w.get('details', {}).get('poids', 0) * w.get('details', {}).get('repetitions', 0)
+                    session_volume += exo.get('poids', 0) * exo.get('repetitions', 0)
+            elif 'details' in w:
+                session_volume += w.get('details', {}).get('poids', 0) * w.get('details', {}).get('repetitions', 0)
+            
+            stats['total_volume_kg'] += session_volume
+            
+            # Estimation Muscu: ~0.05 kcal / kg soulevé (Approximation simple)
+            stats['total_calories'] += (session_volume * 0.05)
+    
+    # Conversion en COOKIES (1 Cookie = 120 kcal)
+    stats['total_cookies'] = round(stats['total_calories'] / 120, 1)
     
     stats['total_distance_km'] = round(stats['total_distance_km'], 1)
     stats['total_volume_kg'] = int(stats['total_volume_kg'])
+    stats['total_calories'] = int(stats['total_calories'])
 
     return stats
 
@@ -265,7 +269,7 @@ def dashboard():
                 
                 exercises_data = []
                 for i in range(len(exercices)):
-                    if exercices[i]: # On ajoute seulement si le nom de l'exercice est renseigné
+                    if exercices[i]:
                         exercises_data.append({
                             'exercice': exercices[i],
                             'poids': float(poids_list[i] or 0),
