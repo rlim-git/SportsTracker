@@ -5,7 +5,7 @@ Groupe :
 
 ## 🎯 Objectif du Projet
 
-**SportTracker** est un carnet d'entraînement numérique destiné aux pratiquants de **CrossFit** et de **Musculation**. Il vise à offrir une plateforme centralisée pour **suivre les performances**, **enregistrer les séances** (WODs, séries, répétitions, poids), et **visualiser la progression** au fil du temps.
+**SportTracker** est un carnet d'entraînement numérique destiné aux pratiquants de **CrossFit** et de **Musculation**. Il vise à offrir une plateforme centralisée pour **suivre les performances**, **enregistrer les séances** (Cardio, séries, répétitions, poids), et **visualiser la progression** au fil du temps.
 
 ---
 
@@ -23,10 +23,11 @@ Ce projet utilise une architecture conteneurisée (micro-services) pour garantir
 ### 📂 Structure du Répertoire (Phase Initiale)
 ```text
 SportTracker/
-├── src/
-│   ├── templates/           # Code source de l'application
+├── src/                     # Code source de l'application
+│   ├── templates/           # La partie Front de l'application
 |   |   └── Fichiers HTML
-|   ├── static/css/          # Fichiers CSS
+|   ├── static/css/          # Fichier CSS
+|   ├── app.py               # Le Back-end en Flask
 │   ├── Dockerfile           # Build l'image du serveur web
 │   └── requirements.txt     # Dépendances
 ├── data/
